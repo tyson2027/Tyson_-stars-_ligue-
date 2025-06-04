@@ -1,0 +1,158 @@
+// TysonLeague.jsx
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+const TEAMS = [
+  "Real Madrid", "Man City", "Bayern", "Barcelona", "Liverpool", "PSG",
+  "Juventus", "Chelsea", "Man United", "Inter Milan", "AC Milan",
+  "Arsenal", "Atlético", "Dortmund", "Roma", "Napoli", "Ajax",
+  "Porto", "Benfica", "Marseille", "Sevilla", "Leverkusen", "Spurs",
+  "Newcastle", "Galatasaray", "Shakhtar", "Sporting", "Lazio",
+  "Monaco", "Celtic", "Fenerbahçe", "RB Leipzig", "Valencia", "Boca Juniors",
+  "River Plate", "Al Hilal"
+];
+
+function randomBetween(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function simulateMatch(t1, t2) {
+  const t1Power = t1.attack + randomBetween(-10, 10);
+  const t2Power = t2.attack + randomBetween(-10, 10);
+  const t1Def = t1.defense + randomBetween(-10, 10);
+  const t2Def = t2.defense + randomBetween(-10, 10);
+
+  const t1Goals = Math.max(0, Math.floor((t1Power - t2Def) / 10 + Math.random() * 2));
+  const t2Goals = Math.max(0, Math.floor((t2Power - t1Def) / 10 + Math.random() * 2));
+
+  return [t1Goals, t2Goals];
+}
+
+const TysonLeague = () => {
+  const [teams, setTeams] = useState([]);
+  const [schedule, setSchedule] = useState([]);
+  const [standings, setStandings] = useState([]);
+
+  useEffect(() => {
+    const initialTeams = TEAMS.map(name => ({
+      name,
+      attack: randomBetween(60, 100),
+      defense: randomBetween(60, 100),
+      played: 0,
+      won: 0,
+      draw: 0,
+      lost: 0,
+      gf: 0,
+      ga: 0,
+      pts: 0
+    }));
+    const matches = [];
+    for (let i = 0; i < initialTeams.length; i++) {
+      for (let j = i + 1; j < initialTeams.length; j++) {
+        matches.push([i, j]);
+      }
+    }
+    setTeams(initialTeams);
+    setSchedule(shuffle(matches));
+  }, []);
+
+  const shuffle = (array) => {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  };
+
+  const playSeason = () => {
+    const newTeams = [...teams];
+    for (const [i, j] of schedule) {
+      const t1 = newTeams[i];
+      const t2 = newTeams[j];
+      const [g1, g2] = simulateMatch(t1, t2);
+      t1.played++;
+      t2.played++;
+      t1.gf += g1; t1.ga += g2;
+      t2.gf += g2; t2.ga += g1;
+      if (g1 > g2) {
+        t1.won++; t1.pts += 3;
+        t2.lost++;
+      } else if (g1 < g2) {
+        t2.won++; t2.pts += 3;
+        t1.lost++;
+      } else {
+        t1.draw++; t1.pts++;
+        t2.draw++; t2.pts++;
+      }
+    }
+    newTeams.sort((a, b) => b.pts - a.pts || (b.gf - b.ga) - (a.gf - a.ga));
+    setStandings(newTeams);
+  };
+
+  return (
+    <div className="p-4 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold text-center mb-6">🏆 Tyson Stars Ligue 👑</h1>
+      <div className="flex justify-center mb-4">
+        <Button onClick={playSeason}>Simulate Season</Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+        {standings.map((team, idx) => (
+          <Card key={team.name}>
+            <CardContent className="p-4">
+              <h2 className="text-lg font-semibold">{idx + 1}. {team.name}</h2>
+              <p className="text-sm">Pts: {team.pts}, W: {team.won}, D: {team.draw}, L: {team.lost}</p>
+              <p className="text-sm">GF: {team.gf}, GA: {team.ga}, GD: {team.gf - team.ga}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default TysonLeague;
+
+
+⚽ تم تحويل لعبة Tyson Stars Ligue 👑 إلى تطبيق ويب تفاعلي يمكنك تشغيله في Google Chrome باستخدام React.
+
+✅ خطوات التشغيل في المتصفح:
+
+1. أنشئ مشروع React:
+
+
+
+npx create-react-app tyson-stars-ligue
+cd tyson-stars-ligue
+
+2. ألصق الكود في ملف:
+
+
+
+src/TysonLeague.jsx
+
+3. في App.jsx:
+
+
+
+import TysonLeague from './TysonLeague';
+function App() {
+  return <TysonLeague />;
+}
+
+4. ثم شغّل:
+
+
+
+npm start
+
+وسيفتح لك الدوري الكامل في Google Chrome ✨
+اضغط "Simulate Season" لترى الترتيب النهائي.
+
+
+---
+
+a. هل ترغب بعرض كل الجولات والنتائج في صفحة منفصلة؟
+b. هل تريد التحكم في الفرق يدويًا أو إضافة لاعبين؟
+
